@@ -422,7 +422,7 @@
 <ul id="clicked-countries"></ul>
   <script>
     // Select all <path> elements
-    const paths = document.querySelectorAll('path');
+    const paths = document.querySelectorAll('path[id], g[id]');
 
     // Array to store the click information
     const clickData = [];
@@ -466,7 +466,8 @@
         setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
 
 
-        const countryName = country.getAttribute("id");
+        const clickedCountriesList = document.getElementById('clicked-countries');
+        const countryName = event.target.id;
         const listItem = document.createElement("li");
         listItem.textContent = countryName;
         clickedCountriesList.appendChild(listItem);
@@ -498,17 +499,7 @@
       }
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
     
-
-    // Load existing data from cookie on page load
-    const existingData = getCookie('clickData');
-    if (existingData) {
-      const parsedData = JSON.parse(existingData);
-      clickData.push(...parsedData); // Load into the array
-      console.log('Loaded click data from cookie:', clickData);
-    }
-  });
     
   </script>
 </body>
