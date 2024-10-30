@@ -93,15 +93,24 @@
     }
 
     function setupSvgEventListeners() {
-      const embed = document.getElementById('worldMap');
-      embed.addEventListener('load', function() {
-        const svgDoc = embed.contentDocument;
-        const paths = svgDoc.querySelectorAll('path[id], g[id]');
-        paths.forEach(element => {
-          element.addEventListener('click', handlePathClick);
-        });
-      });
-    }
+   const embed = document.getElementById('worldMap');
+   
+   function addPathListeners(svgDoc) {
+     const paths = svgDoc.querySelectorAll('path[id], g[id]');
+     paths.forEach(element => {
+       element.addEventListener('click', handlePathClick);
+     });
+   }
+
+   if (embed.contentDocument) {
+     addPathListeners(embed.contentDocument);
+   } else {
+     embed.addEventListener('load', () => {
+       addPathListeners(embed.contentDocument);
+     });
+   }
+}
+
 
     document.getElementById('exportCookie').addEventListener('click', () => {
       const clickDataCookie = getCookie('clickData');
@@ -141,17 +150,27 @@
     }
 
     function handleImportClickData(data) {
-      const embed = document.getElementById('worldMap');
-      embed.addEventListener('load', () => {
-        const svgDoc = embed.contentDocument;
-        data.forEach(item => {
-          const element = svgDoc.getElementById(item.pathId.toLowerCase());
-          if (element) {
-            element.style.fill = getUserColor(item.username);
-          }
-        });
+   const embed = document.getElementById('worldMap');
+   const svgLoaded = embed.contentDocument !== null;
+
+   function applyDataToSvg(svgDoc) {
+      data.forEach(item => {
+        const element = svgDoc.getElementById(item.pathId.toLowerCase());
+        if (element) {
+          element.style.fill = getUserColor(item.username);
+        }
       });
-    }
+   }
+
+   if (svgLoaded) {
+     applyDataToSvg(embed.contentDocument);
+   } else {
+     embed.addEventListener('load', () => {
+       applyDataToSvg(embed.contentDocument);
+     });
+   }
+}
+
 
     document.getElementById('importData').addEventListener('click', () => {
       document.getElementById('importFile').click();
