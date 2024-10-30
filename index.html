@@ -466,10 +466,11 @@
         setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
 
 
+        import {countryByISO} from '@lunaticmuch/country-codes'
         const clickedCountriesList = document.getElementById('clicked-countries');
         const countryName = element.id;
         const listItem = document.createElement("li");
-        listItem.textContent = countryName;
+        listItem.textContent = countryByISO(countryName);
         clickedCountriesList.appendChild(listItem);
 
         
