@@ -465,6 +465,13 @@
         // Update the cookie with the new click data
         setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
 
+
+        const countryName = country.getAttribute("id");
+        const listItem = document.createElement("li");
+        listItem.textContent = countryName;
+        clickedCountriesList.appendChild(listItem);
+
+        
         // Output to the console for testing
         console.log('Click saved:', clickData);
       });
@@ -491,20 +498,8 @@
       }
     });
 
+    document.addEventListener("DOMContentLoaded", function() {
     
-  </script>
-  <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const clickedCountriesList = document.getElementById("clicked-countries");
-    
-    document.querySelectorAll("path").forEach(country => {
-      country.addEventListener("click", () => {
-        const countryName = country.getAttribute("id");
-        const listItem = document.createElement("li");
-        listItem.textContent = countryName;
-        clickedCountriesList.appendChild(listItem);
-      });
-    });
 
     // Load existing data from cookie on page load
     const existingData = getCookie('clickData');
@@ -514,6 +509,7 @@
       console.log('Loaded click data from cookie:', clickData);
     }
   });
-</script>
+    
+  </script>
 </body>
 </html>
