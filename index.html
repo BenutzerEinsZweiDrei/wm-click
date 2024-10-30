@@ -422,8 +422,8 @@
 <ul id="clicked-countries"></ul>
 
   <script>
-
-    import { countryByISO } from "https://unpkg.com/@lunaticmuch/country-codes";
+    
+import countryCodes from "https://unpkg.com/@lunaticmuch/country-codes";
 
    
   
@@ -473,9 +473,9 @@
 
 
         const clickedCountriesList = document.getElementById('clicked-countries');
-        const countryName = element.id;
+        const countryCode = element.id;
         const listItem = document.createElement("li");
-        listItem.textContent = countryByISO(countryName).countryName;
+        listItem.textContent = countryCodes.getCountryName(countryCode);
         clickedCountriesList.appendChild(listItem);
 
         
