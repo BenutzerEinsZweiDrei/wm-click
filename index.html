@@ -420,7 +420,11 @@
 </g>
 </svg>
 <ul id="clicked-countries"></ul>
-  <script>
+  <script type="module">
+
+    
+        import {countryByISO} from '@lunaticmuch/country-codes'
+    
     // Select all <path> elements
     const paths = document.querySelectorAll('path[id], g[id]');
 
@@ -466,7 +470,6 @@
         setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
 
 
-        import {countryByISO} from '@lunaticmuch/country-codes'
         const clickedCountriesList = document.getElementById('clicked-countries');
         const countryName = element.id;
         const listItem = document.createElement("li");
