@@ -1777,7 +1777,7 @@ paths.forEach(element => {
 
 // Function to trigger click event programmatically
 function triggerPathClick(elementId) {
-    const element = document.getElementById(elementId); // Adjust this if IDs are not unique
+    const element = document.getElementById(elementId.toLowerCase()); // Adjust this if IDs are not unique
     if (element) {
         // Create a new click event
         const event = new MouseEvent('click', {
