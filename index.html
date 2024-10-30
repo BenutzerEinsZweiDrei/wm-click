@@ -447,10 +447,10 @@
     }
 
     // Add click event to each path
-    paths.forEach(path => {
-      path.addEventListener('click', (event) => {
+    paths.forEach(element => {
+      element.addEventListener('click', (event) => {
         // Change color on click
-        path.style.fill = 'blue';
+        element.style.fill = 'blue';
 
         // Get the username from the input field
         const username = document.getElementById('username').value || 'Anonymous';
@@ -458,7 +458,7 @@
         // Save the click data with the username
         clickData.push({
           username: username,
-          pathId: event.target.id || null,
+          pathId: element.id || null,
           timestamp: new Date().toISOString()
         });
 
@@ -467,7 +467,7 @@
 
 
         const clickedCountriesList = document.getElementById('clicked-countries');
-        const countryName = event.target.id;
+        const countryName = element.id;
         const listItem = document.createElement("li");
         listItem.textContent = countryName;
         clickedCountriesList.appendChild(listItem);
