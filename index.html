@@ -473,9 +473,9 @@ import countryCodes from "https://unpkg.com/@lunaticmuch/country-codes";
 
 
         const clickedCountriesList = document.getElementById('clicked-countries');
-        const countryCode = element.id;
+        const countryCode = element.id.toUpperCase();
         const listItem = document.createElement("li");
-        listItem.textContent = countryCodes.getCountryName(countryCode);
+        listItem.textContent = countryCodes.find(countryCode).name;
         clickedCountriesList.appendChild(listItem);
 
         
