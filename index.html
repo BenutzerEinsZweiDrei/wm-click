@@ -70,46 +70,56 @@
     }
 
     function handlePathClick(event) {
-      const element = event.currentTarget;
-      const username = document.getElementById('username').value || 'Anonymous';
+    const element = event.currentTarget;
+    const username = document.getElementById('username').value || 'Anonymous';
 
-      element.style.fill = getUserColor(username);
+    // Change the fill color of the clicked element
+    element.style.fill = getUserColor(username);
 
-      clickData.push({
+    // Push click data to the array
+    clickData.push({
         username: username,
         pathId: element.id || null,
         timestamp: new Date().toISOString()
-      });
+    });
 
-      setCookie('clickData', JSON.stringify(clickData), 7);
+    // Set the cookie with the click data
+    setCookie('clickData', JSON.stringify(clickData), 7);
 
-      const clickedCountriesList = document.getElementById('clicked-countries');
-      const countryCode = element.id.toUpperCase();
-      const listItem = document.createElement("li");
-      listItem.textContent = countryCodes[countryCode]?.name || 'Unknown Country';
-      clickedCountriesList.appendChild(listItem);
+    // Update the clicked countries list
+    const clickedCountriesList = document.getElementById('clicked-countries');
+    const countryCode = element.id.toUpperCase();
+    const listItem = document.createElement("li");
+    listItem.textContent = countryCodes[countryCode]?.name || 'Unknown Country';
+    clickedCountriesList.appendChild(listItem);
 
-      console.log('Click saved:', clickData);
-    }
+    // Log the click data
+    console.log('Click saved:', clickData);
+}
+
 
     function setupSvgEventListeners() {
-   const embed = document.getElementById('worldMap');
-   
-   function addPathListeners(svgDoc) {
-     const paths = svgDoc.querySelectorAll('path[id], g[id]');
-     paths.forEach(element => {
-       element.addEventListener('click', handlePathClick);
-     });
-   }
+    const embed = document.getElementById('worldMap');
+    
+    function addPathListeners(svgDoc) {
+        // Select all paths and groups with an id
+        const paths = svgDoc.querySelectorAll('path[id], g[id]');
+        paths.forEach(element => {
+            element.addEventListener('click', handlePathClick);
+        });
+    }
 
-   if (embed.contentDocument) {
-     addPathListeners(embed.contentDocument);
-   } else {
-     embed.addEventListener('load', () => {
-       addPathListeners(embed.contentDocument);
-     });
-   }
+    // Check if the SVG content is already loaded
+    if (embed.contentDocument) {
+        addPathListeners(embed.contentDocument);
+    } else {
+        // Wait for the SVG to load before adding listeners
+        embed.addEventListener('load', () => {
+            addPathListeners(embed.contentDocument);
+        });
+    }
 }
+
 
 
     document.getElementById('exportCookie').addEventListener('click', () => {
