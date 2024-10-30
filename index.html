@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Save Clicks as Cookie</title>
   <style>
-    /* Basic styles for better presentation */
     body {
       font-family: Arial, sans-serif;
     }
@@ -23,16 +22,19 @@
     }
     button {
       padding: 8px 12px;
+      margin-right: 5px;
     }
   </style>
 </head>
 <body>
-  <!-- Username input and export button -->
+  <!-- Username input, export button, and import button -->
   <input type="text" id="username" placeholder="Enter your username">
   <object id="worldMap" data="world-map.svg" type="image/svg+xml" width="600" height="400"></object>
 
   <ul id="clicked-countries"></ul>
   <button id="exportCookie">Export Click Data</button>
+  <button id="importData">Import Click Data</button>
+  <input type="file" id="importFile" style="display:none;">
   <input type="text" id="countrySearch" placeholder="Search for a country...">
   <ul id="countryList"></ul>
 
@@ -40,10 +42,9 @@
   <script type="module">
     import { countryCodes } from './codes.js';
 
-    // Array to store the click information
     const clickData = [];
+    const userColors = {};
 
-    // Set a cookie function
     function setCookie(name, value, days) {
       const date = new Date();
       date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -51,7 +52,6 @@
       document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
     }
 
-    // Get a cookie function
     function getCookie(name) {
       const nameEQ = `${name}=`;
       const ca = document.cookie.split(';');
@@ -62,103 +62,113 @@
       return null;
     }
 
-    // Function to handle click events on each path
-    function handlePathClick(event) {
-      const element = event.currentTarget; // Get the clicked element
-      element.style.fill = 'blue'; // Change color on click
+    function getUserColor(username) {
+      if (!userColors[username]) {
+        userColors[username] = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+      }
+      return userColors[username];
+    }
 
-      // Get the username from the input field
+    function handlePathClick(event) {
+      const element = event.currentTarget;
       const username = document.getElementById('username').value || 'Anonymous';
 
-      // Save the click data with the username
+      element.style.fill = getUserColor(username);
+
       clickData.push({
         username: username,
         pathId: element.id || null,
         timestamp: new Date().toISOString()
       });
 
-      // Update the cookie with the new click data
-      setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
+      setCookie('clickData', JSON.stringify(clickData), 7);
 
-      // Update the clicked countries list
       const clickedCountriesList = document.getElementById('clicked-countries');
-      const countryCode = element.id.toUpperCase(); // Convert to uppercase for matching
+      const countryCode = element.id.toUpperCase();
       const listItem = document.createElement("li");
       listItem.textContent = countryCodes[countryCode]?.name || 'Unknown Country';
       clickedCountriesList.appendChild(listItem);
 
-      // Output to the console for testing
       console.log('Click saved:', clickData);
     }
 
-    // Function to add event listeners to paths after SVG has loaded
     function setupSvgEventListeners() {
       const embed = document.getElementById('worldMap');
-
       embed.addEventListener('load', function() {
-        const svgDoc = embed.contentDocument; // Access the embedded SVG document
-        const paths = svgDoc.querySelectorAll('path[id], g[id]'); // Select paths with IDs
-
-        // Add click event to each path
+        const svgDoc = embed.contentDocument;
+        const paths = svgDoc.querySelectorAll('path[id], g[id]');
         paths.forEach(element => {
           element.addEventListener('click', handlePathClick);
         });
       });
     }
 
-    // Export button functionality
     document.getElementById('exportCookie').addEventListener('click', () => {
       const clickDataCookie = getCookie('clickData');
       if (clickDataCookie) {
         const blob = new Blob([clickDataCookie], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-
-        // Create a temporary link to trigger download
         const link = document.createElement('a');
         link.href = url;
         link.download = 'clickData.txt';
         link.click();
-
-        // Revoke the URL after download
         URL.revokeObjectURL(url);
       } else {
         alert('No click data found in the cookie!');
       }
     });
 
-    // Prepare country list on page load
     function populateCountryList() {
       const countryList = document.getElementById('countryList');
-      countryList.innerHTML = ''; // Clear existing list
-
-      // Create list items for each country
+      countryList.innerHTML = '';
       for (const code in countryCodes) {
         const listItem = document.createElement("li");
         listItem.textContent = countryCodes[code].name;
-        listItem.setAttribute('data-code', code); // Store the country code
-        listItem.addEventListener('click', () => showCountryInfo(code)); // Add click event
+        listItem.setAttribute('data-code', code);
+        listItem.addEventListener('click', () => showCountryInfo(code));
         countryList.appendChild(listItem);
       }
     }
 
-    // Function to show country info
     function showCountryInfo(code) {
       const embed = document.getElementById('worldMap');
-      const svgDoc = embed.contentDocument; // Access the embedded SVG document
-      const element = svgDoc.getElementById(code.toLowerCase()); // Get the element by lowercase ID
+      const svgDoc = embed.contentDocument;
+      const element = svgDoc.getElementById(code.toLowerCase());
       if (element) {
-        const event = new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true
-        });
-        element.dispatchEvent(event); // Dispatch the click event
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+        element.dispatchEvent(event);
       }
     }
 
-    // Call the function to populate the list
-    populateCountryList();
+    function handleImportClickData(data) {
+      const embed = document.getElementById('worldMap');
+      embed.addEventListener('load', () => {
+        const svgDoc = embed.contentDocument;
+        data.forEach(item => {
+          const element = svgDoc.getElementById(item.pathId.toLowerCase());
+          if (element) {
+            element.style.fill = getUserColor(item.username);
+          }
+        });
+      });
+    }
 
-    // Search functionality
+    document.getElementById('importData').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const importedData = JSON.parse(e.target.result);
+          handleImportClickData(importedData);
+        };
+        reader.readAsText(file);
+      }
+    });
+
     const countrySearchInput = document.getElementById('countrySearch');
     countrySearchInput.addEventListener('input', () => {
       const filter = countrySearchInput.value.toLowerCase();
@@ -168,12 +178,12 @@
       for (let i = 0; i < listItems.length; i++) {
         const listItem = listItems[i];
         const textValue = listItem.textContent || listItem.innerText;
-        listItem.style.display = textValue.toLowerCase().includes(filter) ? "" : "none"; // Show or hide list item
+        listItem.style.display = textValue.toLowerCase().includes(filter) ? "" : "none";
       }
     });
 
-    // Set up SVG event listeners
     setupSvgEventListeners();
+    populateCountryList();
   </script>
 </body>
 </html>
