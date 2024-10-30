@@ -36,11 +36,12 @@
   <input type="text" id="countrySearch" placeholder="Search for a country...">
   <ul id="countryList"></ul>
 
-  <script src="codes.js"></script>
-  <script>
+  <!-- Import the countryCodes module -->
+  <script type="module">
+    import { countryCodes } from './codes.js';
+
     // Array to store the click information
     const clickData = [];
-
 
     // Set a cookie function
     function setCookie(name, value, days) {
