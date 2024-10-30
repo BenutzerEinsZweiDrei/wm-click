@@ -102,23 +102,24 @@
     const embed = document.getElementById('worldMap');
     
     function addPathListeners(svgDoc) {
-        // Select all paths and groups with an id
         const paths = svgDoc.querySelectorAll('path[id], g[id]');
+        console.log(`Found ${paths.length} paths with IDs`);
         paths.forEach(element => {
             element.addEventListener('click', handlePathClick);
         });
     }
 
-    // Check if the SVG content is already loaded
     if (embed.contentDocument) {
+        console.log("SVG loaded, adding listeners");
         addPathListeners(embed.contentDocument);
     } else {
-        // Wait for the SVG to load before adding listeners
         embed.addEventListener('load', () => {
+            console.log("SVG loaded via event listener");
             addPathListeners(embed.contentDocument);
         });
     }
 }
+
 
 
 
