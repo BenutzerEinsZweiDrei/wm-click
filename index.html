@@ -1715,34 +1715,31 @@
 
 
 
+// Select all <path> elements
+const paths = document.querySelectorAll('path[id], g[id]');
 
+// Array to store the click information
+const clickData = [];
 
-      
-    // Select all <path> elements
-    const paths = document.querySelectorAll('path[id], g[id]');
+// Set a cookie function
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+}
 
-    // Array to store the click information
-    const clickData = [];
-
-    // Set a cookie function
-    function setCookie(name, value, days) {
-      const date = new Date();
-      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-      const expires = "expires=" + date.toUTCString();
-      document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-    }
-
-    // Get a cookie function
-    function getCookie(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for (let i = 0; i < ca.length; i++) {
+// Get a cookie function
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
         let c = ca[i].trim();
         if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
-      }
-      return null;
     }
-    
+    return null;
+}
+
 // Function to handle click events on each path
 function handlePathClick(event) {
     // Change color on click
@@ -1778,18 +1775,23 @@ paths.forEach(element => {
     element.addEventListener('click', handlePathClick);
 });
 
-
-    function triggerPathClick(elementId) {
+// Function to trigger click event programmatically
+function triggerPathClick(elementId) {
     const element = document.getElementById(elementId); // Adjust this if IDs are not unique
     if (element) {
-        element.handlePathClick(); // This triggers the click event
+        // Create a new click event
+        const event = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true
+        });
+        element.dispatchEvent(event); // Dispatch the click event
     }
 }
 
-    // Export button functionality
-    document.getElementById('exportCookie').addEventListener('click', () => {
-      const clickDataCookie = getCookie('clickData');
-      if (clickDataCookie) {
+// Export button functionality
+document.getElementById('exportCookie').addEventListener('click', () => {
+    const clickDataCookie = getCookie('clickData');
+    if (clickDataCookie) {
         // Create a blob with the click data
         const blob = new Blob([clickDataCookie], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
@@ -1802,11 +1804,10 @@ paths.forEach(element => {
 
         // Revoke the URL after download
         URL.revokeObjectURL(url);
-      } else {
+    } else {
         alert('No click data found in the cookie!');
-      }
-    });
-
+    }
+});
 
 // Prepare country list on page load
 function populateCountryList() {
@@ -1825,9 +1826,7 @@ function populateCountryList() {
 
 // Function to show country info
 function showCountryInfo(code) {
-     
-triggerPathClick(code); // Replace 'somePathId' with the actual ID of the path you want to click
-
+    triggerPathClick(code); // Trigger the click on the corresponding path element
 }
 
 // Call the function to populate the list
