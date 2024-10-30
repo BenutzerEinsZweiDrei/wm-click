@@ -1742,44 +1742,47 @@
       }
       return null;
     }
+    
+// Function to handle click events on each path
+function handlePathClick(event) {
+    // Change color on click
+    const element = event.currentTarget; // Get the clicked element
 
-    // Add click event to each path
-    paths.forEach(element => {
-      element.addEventListener('click', (event) => {
-        // Change color on click
-        element.style.fill = 'blue';
+    element.style.fill = 'blue';
 
-        // Get the username from the input field
-        const username = document.getElementById('username').value || 'Anonymous';
+    // Get the username from the input field
+    const username = document.getElementById('username').value || 'Anonymous';
 
-        // Save the click data with the username
-        clickData.push({
-          username: username,
-          pathId: element.id || null,
-          timestamp: new Date().toISOString()
-        });
-
-        // Update the cookie with the new click data
-        setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
-
-
-        const clickedCountriesList = document.getElementById('clicked-countries');
-        const countryCode = element.id.toUpperCase();
-        const listItem = document.createElement("li");
-        listItem.textContent = countryCodes[countryCode].name;
-        clickedCountriesList.appendChild(listItem);
-
-        
-        // Output to the console for testing
-        console.log('Click saved:', clickData);
-      });
+    // Save the click data with the username
+    clickData.push({
+        username: username,
+        pathId: element.id || null,
+        timestamp: new Date().toISOString()
     });
+
+    // Update the cookie with the new click data
+    setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
+
+    const clickedCountriesList = document.getElementById('clicked-countries');
+    const countryCode = element.id.toUpperCase();
+    const listItem = document.createElement("li");
+    listItem.textContent = countryCodes[countryCode].name;
+    clickedCountriesList.appendChild(listItem);
+
+    // Output to the console for testing
+    console.log('Click saved:', clickData);
+}
+
+// Add click event to each path
+paths.forEach(element => {
+    element.addEventListener('click', handlePathClick);
+});
 
 
     function triggerPathClick(elementId) {
     const element = document.getElementById(elementId); // Adjust this if IDs are not unique
     if (element) {
-        element.click(); // This triggers the click event
+        element.handlePathClick(); // This triggers the click event
     }
 }
 
