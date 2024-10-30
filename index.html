@@ -1,105 +1,118 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Save Clicks as Cookie</title>
+  <style>
+    /* Basic styles for better presentation */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #clicked-countries, #countryList {
+      list-style-type: none;
+      padding: 0;
+    }
+    #clicked-countries li, #countryList li {
+      margin: 5px 0;
+    }
+    input[type="text"] {
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 300px;
+    }
+    button {
+      padding: 8px 12px;
+    }
+  </style>
 </head>
 <body>
   <!-- Username input and export button -->
   <input type="text" id="username" placeholder="Enter your username">
-  
-<object data="world-map.svg"></object>
+  <object data="world-map.svg" type="image/svg+xml"></object>
 
-<ul id="clicked-countries"></ul>
-<button id="exportCookie">Export Click Data</button>
+  <ul id="clicked-countries"></ul>
+  <button id="exportCookie">Export Click Data</button>
   <input type="text" id="countrySearch" placeholder="Search for a country...">
-<ul id="countryList"></ul>
+  <ul id="countryList"></ul>
 
   <script src="codes.js"></script>
   <script>
-    
-    
+    // Select all <path> and <g> elements with IDs
+    const paths = document.querySelectorAll('path[id], g[id]');
 
+    // Array to store the click information
+    const clickData = [];
 
-// Select all <path> elements
-const paths = document.querySelectorAll('path[id], g[id]');
+    // Set a cookie function
+    function setCookie(name, value, days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      const expires = `expires=${date.toUTCString()}`;
+      document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
+    }
 
-// Array to store the click information
-const clickData = [];
-
-// Set a cookie function
-function setCookie(name, value, days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-}
-
-// Get a cookie function
-function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
+    // Get a cookie function
+    function getCookie(name) {
+      const nameEQ = `${name}=`;
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
         let c = ca[i].trim();
         if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+      }
+      return null;
     }
-    return null;
-}
 
-// Function to handle click events on each path
-function handlePathClick(event) {
-    // Change color on click
-    const element = event.currentTarget; // Get the clicked element
+    // Function to handle click events on each path
+    function handlePathClick(event) {
+      const element = event.currentTarget; // Get the clicked element
+      element.style.fill = 'blue'; // Change color on click
 
-    element.style.fill = 'blue';
+      // Get the username from the input field
+      const username = document.getElementById('username').value || 'Anonymous';
 
-    // Get the username from the input field
-    const username = document.getElementById('username').value || 'Anonymous';
-
-    // Save the click data with the username
-    clickData.push({
+      // Save the click data with the username
+      clickData.push({
         username: username,
         pathId: element.id || null,
         timestamp: new Date().toISOString()
+      });
+
+      // Update the cookie with the new click data
+      setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
+
+      // Update the clicked countries list
+      const clickedCountriesList = document.getElementById('clicked-countries');
+      const countryCode = element.id.toUpperCase();
+      const listItem = document.createElement("li");
+      listItem.textContent = countryCodes[countryCode]?.name || 'Unknown Country';
+      clickedCountriesList.appendChild(listItem);
+
+      // Output to the console for testing
+      console.log('Click saved:', clickData);
+    }
+
+    // Add click event to each path
+    paths.forEach(element => {
+      element.addEventListener('click', handlePathClick);
     });
 
-    // Update the cookie with the new click data
-    setCookie('clickData', JSON.stringify(clickData), 7); // 7-day expiration
-
-    const clickedCountriesList = document.getElementById('clicked-countries');
-    const countryCode = element.id.toUpperCase();
-    const listItem = document.createElement("li");
-    listItem.textContent = countryCodes[countryCode].name;
-    clickedCountriesList.appendChild(listItem);
-
-    // Output to the console for testing
-    console.log('Click saved:', clickData);
-}
-
-// Add click event to each path
-paths.forEach(element => {
-    element.addEventListener('click', handlePathClick);
-});
-
-// Function to trigger click event programmatically
-function triggerPathClick(elementId) {
-    const element = document.getElementById(elementId.toLowerCase()); // Adjust this if IDs are not unique
-    if (element) {
-        // Create a new click event
+    // Function to trigger click event programmatically
+    function triggerPathClick(elementId) {
+      const element = document.getElementById(elementId.toLowerCase()); // Adjust this if IDs are not unique
+      if (element) {
         const event = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true
+          bubbles: true,
+          cancelable: true
         });
         element.dispatchEvent(event); // Dispatch the click event
+      }
     }
-}
 
-// Export button functionality
-document.getElementById('exportCookie').addEventListener('click', () => {
-    const clickDataCookie = getCookie('clickData');
-    if (clickDataCookie) {
-        // Create a blob with the click data
+    // Export button functionality
+    document.getElementById('exportCookie').addEventListener('click', () => {
+      const clickDataCookie = getCookie('clickData');
+      if (clickDataCookie) {
         const blob = new Blob([clickDataCookie], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
 
@@ -111,57 +124,51 @@ document.getElementById('exportCookie').addEventListener('click', () => {
 
         // Revoke the URL after download
         URL.revokeObjectURL(url);
-    } else {
+      } else {
         alert('No click data found in the cookie!');
-    }
-});
+      }
+    });
 
-// Prepare country list on page load
-function populateCountryList() {
-    const countryList = document.getElementById('countryList');
-    countryList.innerHTML = ''; // Clear existing list
+    // Prepare country list on page load
+    function populateCountryList() {
+      const countryList = document.getElementById('countryList');
+      countryList.innerHTML = ''; // Clear existing list
 
-    // Create list items for each country
-    for (const code in countryCodes) {
+      // Create list items for each country
+      for (const code in countryCodes) {
         const listItem = document.createElement("li");
         listItem.textContent = countryCodes[code].name;
         listItem.setAttribute('data-code', code); // Store the country code
         listItem.addEventListener('click', () => showCountryInfo(code)); // Add click event
         countryList.appendChild(listItem);
+      }
     }
-}
 
-// Function to show country info
-function showCountryInfo(code) {
-    triggerPathClick(code); // Trigger the click on the corresponding path element
-}
+    // Function to show country info
+    function showCountryInfo(code) {
+      triggerPathClick(code); // Trigger the click on the corresponding path element
+    }
 
-// Call the function to populate the list
-populateCountryList();
+    // Call the function to populate the list
+    populateCountryList();
 
-// Search functionality
-const countrySearchInput = document.getElementById('countrySearch');
-countrySearchInput.addEventListener('input', () => {
-    const filter = countrySearchInput.value.toLowerCase();
-    const countryList = document.getElementById('countryList');
-    const listItems = countryList.getElementsByTagName('li');
+    // Search functionality
+    const countrySearchInput = document.getElementById('countrySearch');
+    countrySearchInput.addEventListener('input', () => {
+      const filter = countrySearchInput.value.toLowerCase();
+      const countryList = document.getElementById('countryList');
+      const listItems = countryList.getElementsByTagName('li');
 
-    for (let i = 0; i < listItems.length; i++) {
+      for (let i = 0; i < listItems.length; i++) {
         const listItem = listItems[i];
         const textValue = listItem.textContent || listItem.innerText;
-        if (textValue.toLowerCase().indexOf(filter) > -1) {
-            listItem.style.display = ""; // Show the list item
-        } else {
-            listItem.style.display = "none"; // Hide the list item
-        }
-    }
+        listItem.style.display = textValue.toLowerCase().includes(filter) ? "" : "none"; // Show or hide list item
+      }
 
-    // Hide country info when search input changes
-    document.getElementById('countryInfo').style.display = 'none';
-});
-
-
-    
+      // Hide country info when search input changes (if applicable)
+      // Uncomment the following line if you have an element with ID 'countryInfo' to show/hide
+      // document.getElementById('countryInfo').style.display = 'none';
+    });
   </script>
 </body>
 </html>
