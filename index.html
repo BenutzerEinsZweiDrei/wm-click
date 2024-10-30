@@ -423,7 +423,7 @@
 
   <script>
 
-    import("https://unpkg.com/@lunaticmuch/country-codes")
+    import { countryByISO } from "https://unpkg.com/@lunaticmuch/country-codes";
 
    
   
@@ -475,7 +475,7 @@
         const clickedCountriesList = document.getElementById('clicked-countries');
         const countryName = element.id;
         const listItem = document.createElement("li");
-        listItem.textContent = countryByISO(countryName);
+        listItem.textContent = countryByISO(countryName).countryName;
         clickedCountriesList.appendChild(listItem);
 
         
