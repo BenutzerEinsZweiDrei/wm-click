@@ -420,11 +420,12 @@
 </g>
 </svg>
 <ul id="clicked-countries"></ul>
-  <script type="module">
 
-    
-        import {countryByISO} from '@lunaticmuch/country-codes'
-    
+  <script src="https://unpkg.com/@lunaticmuch/country-codes"></script>
+  <script>
+
+    const countryByISO = countryCodes.countryByISO;
+  
     // Select all <path> elements
     const paths = document.querySelectorAll('path[id], g[id]');
 
