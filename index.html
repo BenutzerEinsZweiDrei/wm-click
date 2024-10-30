@@ -1775,6 +1775,14 @@
       });
     });
 
+
+    function triggerPathClick(elementId) {
+    const element = document.getElementById(elementId); // Adjust this if IDs are not unique
+    if (element) {
+        element.click(); // This triggers the click event
+    }
+}
+
     // Export button functionality
     document.getElementById('exportCookie').addEventListener('click', () => {
       const clickDataCookie = getCookie('clickData');
@@ -1796,7 +1804,8 @@
       }
     });
 
-    // Prepare country list on page load
+
+// Prepare country list on page load
 function populateCountryList() {
     const countryList = document.getElementById('countryList');
     countryList.innerHTML = ''; // Clear existing list
@@ -1805,9 +1814,17 @@ function populateCountryList() {
     for (const code in countryCodes) {
         const listItem = document.createElement("li");
         listItem.textContent = countryCodes[code].name;
-        listItem.setAttribute('data-code', code); // Optionally store the country code
+        listItem.setAttribute('data-code', code); // Store the country code
+        listItem.addEventListener('click', () => showCountryInfo(code)); // Add click event
         countryList.appendChild(listItem);
     }
+}
+
+// Function to show country info
+function showCountryInfo(code) {
+     
+triggerPathClick(code); // Replace 'somePathId' with the actual ID of the path you want to click
+
 }
 
 // Call the function to populate the list
@@ -1829,7 +1846,11 @@ countrySearchInput.addEventListener('input', () => {
             listItem.style.display = "none"; // Hide the list item
         }
     }
+
+    // Hide country info when search input changes
+    document.getElementById('countryInfo').style.display = 'none';
 });
+
 
     
   </script>
